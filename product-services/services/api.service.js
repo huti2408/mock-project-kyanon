@@ -43,7 +43,7 @@ module.exports = {
 
 				// The auto-alias feature allows you to declare your route alias directly in your services.
 				// The gateway will dynamically build the full routes from service schema.
-				// autoAliases: true,
+				autoAliases: true,
 
 				aliases: {},
 
