@@ -13,7 +13,7 @@ const UserModel = {
 			allowNull: false,
 		},
 		image: {
-			type: Sequelize.STRING,
+			type: Sequelize.TEXT,
 		},
 		email: {
 			type: Sequelize.STRING,
@@ -24,6 +24,10 @@ const UserModel = {
 					msg: "Must be a valid email address",
 				},
 			},
+		},
+		password: {
+			type: Sequelize.STRING,
+			allowNull: false,
 		},
 		point: {
 			type: Sequelize.INTEGER,

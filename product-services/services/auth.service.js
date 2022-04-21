@@ -1,12 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { NotFound, response } = require("../helper/response");
+const { NotFound, Create, response } = require("../helper/response");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const _ = require("lodash");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
-// const { Sequelize } = require("sequelize/types");
+const Sequelize = require("sequelize");
 
 const redis = new Redis();
 
@@ -15,6 +15,9 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
+	async created() {
+		// this.adapter.db.sync({ alter: true });
+	},
 	actions: {
 		login: {
 			rest: "POST /sign-in",
@@ -33,6 +36,7 @@ module.exports = {
 					return NotFound(ctx, email);
 				}
 				const user = existedUser.dataValues;
+				console.log(user, password);
 				const comparePassword = bcrypt.compareSync(
 					password,
 					user.password
@@ -57,10 +61,54 @@ module.exports = {
 				return response(ctx, { data: { token } });
 			},
 		},
+		register: {
+			rest: "POST /sign-up",
+			params: {
+				email: { type: "email", min: 10, max: 100 },
+				password: { type: "string", min: 6 },
+				name: { type: "string", min: 6, max: 100 },
+				image: "string",
+				role: {
+					type: "string",
+					optional: true,
+					lowercase: true,
+				},
+			},
+			hooks: {
+				before(ctx) {
+					ctx.params.password = this.hashPassword(
+						ctx.params.password
+					);
+					return ctx;
+				},
+			},
+			async handler(ctx) {
+				const newUser = ctx.params;
+				const existedUser = await this.adapter.findOne({
+					where: {
+						email: newUser.email,
+					},
+				});
+				if (existedUser) {
+					return response(ctx, {
+						message: "Email is already registered",
+					});
+				}
+				await this.adapter.insert(newUser);
+				return Create(ctx, "Sign Up successfully!", newUser);
+			},
+		},
 	},
 	methods: {
+		hashPassword(password) {
+			const salt = bcrypt.genSaltSync(10);
+			const hash = bcrypt.hashSync(password, salt);
+			return hash;
+		},
 		generateJWT(payload, ttl) {
-			const token = jwt.sign({ payload }, process.env.SECRETKEY, ttl);
+			const token = jwt.sign({ payload }, process.env.SECRETKEY, {
+				expiresIn: ttl,
+			});
 			return token;
 		},
 		// async getPermission(userId) {
