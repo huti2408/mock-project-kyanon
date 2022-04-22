@@ -1,46 +1,58 @@
-const Sequelize = require("sequelize");
+const {
+	STRING,
+	DATE,
+	INTEGER,
+	UUID,
+	UUIDV4,
+	ARRAY,
+	Sequelize,
+} = require("sequelize");
 const UserModel = {
 	name: "user",
 	define: {
 		id: {
-			type: Sequelize.UUID,
+			type: UUID,
 			primaryKey: true,
 			unique: true,
-			defaultValue: Sequelize.UUIDV4,
+			defaultValue: UUIDV4,
 		},
 		name: {
-			type: Sequelize.STRING,
+			type: STRING,
 			allowNull: false,
 		},
 		image: {
-			type: Sequelize.STRING,
+			type: STRING,
 		},
 		email: {
-			type: Sequelize.STRING,
+			type: STRING,
 			allowNull: false,
 			unique: true,
-			validate: {
-				isEmail: {
-					msg: "Must be a valid email address",
-				},
-			},
+		},
+		password: {
+			type: STRING,
+		},
+		passwordToken: {
+			type: STRING,
+		},
+		passwordTokenExpirationDate: {
+			type: DATE,
 		},
 		point: {
-			type: Sequelize.INTEGER,
+			type: INTEGER,
 			defaultValue: 0,
 			validate: {
 				min: 0,
 			},
 		},
 		role: {
-			type: Sequelize.STRING,
+			type: STRING,
 			defaultValue: "customer",
 			validate: {
 				isIn: [["admin", "customer"]],
 			},
 		},
-		deliveryInforId: {
-			type: Sequelize.UUID,
+		deliveryId: {
+			type: ARRAY(UUID),
 			references: {
 				model: "deliveryinformations",
 				key: "id",

@@ -1,7 +1,7 @@
 "use strict";
 
 const ApiGateway = require("moleculer-web");
-
+const _ = require("lodash");
 /**
  * @typedef {import('moleculer').Context} Context Moleculer's Context
  * @typedef {import('http').IncomingMessage} IncomingRequest Incoming HTTP Request
@@ -45,7 +45,12 @@ module.exports = {
 				// The gateway will dynamically build the full routes from service schema.
 				autoAliases: true,
 
-				aliases: {},
+				aliases: {
+					"POST /sign-in": "auth.signIn",
+					"POST /sign-up": "auth.signUp",
+					"POST users/sign-in": "users.signIn",
+					"POST users/sign-up": "users.signUp",
+				},
 
 				/** 
 				 * Before call hook. You can check the request.
@@ -91,6 +96,34 @@ module.exports = {
 
 				// Enable/disable logging
 				logging: true,
+				onError(req, res, err) {
+					// Return with the error as JSON object
+					res.setHeader(
+						"Content-type",
+						"application/json; charset=utf-8"
+					);
+					res.writeHead(err.code || 500);
+					let errorObject = {};
+					if (err.code == 422) {
+						err.data.forEach((e) => {
+							let field = e.field;
+							errorObject[field] = e.message;
+						});
+						errorObject.type = "UNPROCESSABLE_ENTITY";
+						errorObject.code = 422;
+						res.end(JSON.stringify({ errors: errorObject }));
+					} else if (err.name == "TokenExpiredError") {
+						errorObject = _.pick(err, ["message"]);
+						errorObject.type = "JWT_EXPIRED_ERROR";
+						errorObject.code = 500;
+						res.end(JSON.stringify({ errors: errorObject }));
+					} else {
+						// pick chỉ lấy field chỉ định
+						errorObject = _.pick(err, ["message", "type", "code"]);
+						res.end(JSON.stringify({ errors: errorObject }));
+					}
+					this.logResponse(req, res, err ? err.ctx : null);
+				},
 			},
 		],
 

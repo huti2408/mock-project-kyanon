@@ -1,32 +1,44 @@
-const Sequelize = require("sequelize");
+const { STRING, BOOLEAN, UUID, UUIDV4 } = require("sequelize");
 const DeliveryInforModel = {
-	name: "deliveryinformations",
+	name: "deliveryinformation",
 	define: {
 		id: {
-			type: Sequelize.UUID,
+			type: UUID,
 			primaryKey: true,
 			unique: true,
-			defaultValue: Sequelize.UUIDV4,
+			defaultValue: UUIDV4,
 		},
-		name: {
-			type: Sequelize.STRING,
+		receiverName: {
+			type: STRING,
 			allowNull: false,
 		},
 		phone: {
-			type: Sequelize.STRING,
+			type: STRING,
 			allowNull: false,
 			validate: {
 				notNull: { args: true, msg: "You must enter Phone Number" },
-				len: { args: [11, 11], msg: "Phone Number is invalid" },
+				len: { args: [10, 11], msg: "Phone Number is invalid" },
 				isInt: { args: true, msg: "You must enter Phone Number" },
 			},
 		},
-		address: {
-			type: Sequelize.STRING,
+		city: {
+			type: STRING,
+			allowNull: false,
+		},
+		district: {
+			type: STRING,
+			allowNull: false,
+		},
+		ward: {
+			type: STRING,
+			allowNull: false,
+		},
+		detailAddress: {
+			type: STRING,
 			allowNull: false,
 		},
 		default: {
-			type: Sequelize.BOOLEAN,
+			type: BOOLEAN,
 			defaultValue: false,
 		},
 	},
