@@ -26,12 +26,11 @@
  *  }
  */
 require("dotenv").config();
-
 module.exports = {
 	// Namespace of nodes to segment your nodes on the same network.
 	namespace: "",
 	// Unique node identifier. Must be unique in a namespace.
-	nodeID: "Order",
+	nodeID: null,
 	// Custom metadata store. Store here what you want. Accessing: `this.broker.metadata`
 	metadata: {},
 
@@ -154,7 +153,7 @@ module.exports = {
 
 	// Enable/disable built-in metrics function. More info: https://moleculer.services/docs/0.14/metrics.html
 	metrics: {
-		enabled: false,
+		enabled: true,
 		// Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
 		reporter: {
 			type: "Prometheus",
@@ -198,7 +197,9 @@ module.exports = {
 	replCommands: null,
 
 	// Called after broker created.
-	created(broker) {},
+	created(broker) {
+		console.log("ENV", process.env.MySQL_URI);
+	},
 
 	// Called after broker started.
 	async started(broker) {},
