@@ -1,12 +1,10 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { NotFound, Create, response } = require("../helper/response");
+const { NotFound, Create, Response } = require("../helper/response");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const _ = require("lodash");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
-const Sequelize = require("sequelize");
 
 const redis = new Redis();
 
@@ -15,8 +13,8 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
-	async created() {
-		// this.adapter.db.sync({ alter: true });
+	async started() {
+		this.adapter.db.sync({ alter: true });
 	},
 	actions: {
 		login: {
@@ -42,7 +40,7 @@ module.exports = {
 					user.password
 				);
 				if (!comparePassword) {
-					return response(ctx, { message: "Wrong password" });
+					return Response(ctx, { message: "Wrong password" });
 				}
 				// const permissions = await this.getPermission(user.id);
 				const role = user.role;
@@ -58,7 +56,7 @@ module.exports = {
 				}).then((token) => {
 					redis.setex(user.id, 60 * 60 * 4, token);
 				});
-				return response(ctx, { data: { token } });
+				return Response(ctx, { data: { token } });
 			},
 		},
 		register: {

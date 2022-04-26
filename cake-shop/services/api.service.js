@@ -97,6 +97,32 @@ module.exports = {
 					// "DELETE /:id": "orders.remove",
 				},
 			},
+			{
+				name: "product",
+				path: "/api/products/",
+				// authentication: true,
+				// authorization: true,
+				aliases: {
+					"GET /": "products.list",
+					"POST /": "products.create",
+					"GET /:id": "products.get",
+					"PUT /:id": "products.update",
+					"DELETE /:id": "products.remove",
+				},
+			},
+			{
+				name: "category",
+				path: "/api/categories/",
+				// authentication: true,
+				// authorization: true,
+				aliases: {
+					"GET /": "categories.list",
+					"POST /": "categories.create",
+					"GET /:id": "categories.get",
+					"PUT /:id": "categories.update",
+					"DELETE /:id": "categories.remove",
+				},
+			},
 		],
 		// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 		callingOptions: {},
