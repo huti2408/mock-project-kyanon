@@ -31,7 +31,7 @@ module.exports = {
 				path: "/api/",
 				name: "users",
 				aliases: {
-					"POST /sign-in": "auth.signIn",
+					"POST /sign-in": "auth.login",
 					"POST /sign-up": "users.signUp",
 				},
 			},
