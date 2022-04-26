@@ -8,6 +8,11 @@ const DeliveryInforModel = {
 			unique: true,
 			defaultValue: UUIDV4,
 		},
+		userId: {
+			type: UUID,
+			allowNull: false,
+			defaultValue: UUIDV4,
+		},
 		receiverName: {
 			type: STRING,
 			allowNull: false,
@@ -36,10 +41,6 @@ const DeliveryInforModel = {
 		detailAddress: {
 			type: STRING,
 			allowNull: false,
-		},
-		default: {
-			type: BOOLEAN,
-			defaultValue: false,
 		},
 	},
 };

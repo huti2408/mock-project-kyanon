@@ -31,6 +31,7 @@
     "moleculer": "^0.14.16",
     "moleculer-db": "^0.8.17",
     "moleculer-db-adapter-sequelize": "^0.2.13",
+    "moleculer-sequelize": "^0.8.11",
     "moleculer-web": "^0.10.2",
     "mysql2": "^2.3.3",
     "nats": "^2.6.1",

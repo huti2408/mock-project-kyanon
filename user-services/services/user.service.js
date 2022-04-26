@@ -1,14 +1,14 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const {
-	NotFound,
-	Response,
-	InputError,
-	Create,
-} = require("../helper/response");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const _ = require("lodash");
+const {
+	NotFound,
+	Get,
+	InputError,
+	Create,
+	hashPassword,
+	comparePassword,
+	generateJWT,
+} = require("../helper");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
 const redis = new Redis();
@@ -18,53 +18,15 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
-	actions: {
-		signIn: {
-			rest: "POST sign-in",
-			params: {
-				email: { type: "email", min: 10, max: 100 },
-				password: { type: "string", min: 6 },
+	hooks: {
+		after: {
+			signup: function (ctx, res) {
+				delete res.data.dataValues.password;
+				return res;
 			},
-			async handler(ctx) {
-				const { email, password } = ctx.params;
-				const existedUser = await this.adapter.findOne({
-					where: {
-						email,
-					},
-				});
-				if (!existedUser) {
-					throw NotFound("Email");
-				}
-				const user = existedUser.dataValues;
-				const comparePassword = this.comparePassword(
-					password,
-					user.password
-				);
-				if (!comparePassword) {
-					return InputError(ctx, "Wrong Password");
-				}
-				const { role, id } = user;
-				const payload = {
-					userId: id,
-					role,
-				};
-				// console.log("payload", payload);
-				const token = this.generateJWT(payload);
-				new Promise((resolve, reject) => {
-					resolve(token);
-				}).then((token) => {
-					redis.setex(user.id, ONE_DAY, token);
-				});
-				return Response(ctx, { data: { token } });
-			},
-
-			// showProfile == /show-profile
-			// updateProfile == /update-profile
-			// changePassword == /change-password
-			// forgotPassword == /forgot-password
-			// resetPassword == /reset-password
-			showProfile() {},
 		},
+	},
+	actions: {
 		// signUp == /sign-up
 		signUp: {
 			rest: "POST sign-up",
@@ -75,9 +37,7 @@ module.exports = {
 			},
 			hooks: {
 				before(ctx) {
-					ctx.params.password = this.hashPassword(
-						ctx.params.password
-					);
+					ctx.params.password = hashPassword(ctx.params.password);
 					return ctx;
 				},
 			},
@@ -95,22 +55,38 @@ module.exports = {
 				return Create(ctx, "Sign up successfully", user);
 			},
 		},
+		// update-delivery-default
+		updateDeliveryDefault: {
+			params: {
+				userId: "string",
+				deliveryId: "string",
+			},
+			async handler(ctx) {
+				const { userId, deliveryId } = ctx.params;
+				const updatedAt = new Date();
+				const updateUser = {
+					deliveryDefault: deliveryId,
+					updatedAt,
+				};
+				await this.adapter.updateById(userId, {
+					$set: updateUser,
+				});
+				return;
+			},
+		},
+
+		// showProfile == /show-profile
+		showProfile: {
+			rest: "GET /profile",
+			async handler(ctx) {
+				const user = await this.adapter.findById(ctx.meta.user.userId);
+				return Get(ctx, user);
+			},
+		},
+		// updateProfile == /update-profile
+		// changePassword == /change-password
+		// forgotPassword == /forgot-password
+		// resetPassword == /reset-password
 	},
-	methods: {
-		hashPassword(password) {
-			const salt = bcrypt.genSaltSync(10);
-			const hash = bcrypt.hashSync(password, salt);
-			return hash;
-		},
-		comparePassword(password, passwordHash) {
-			const check = bcrypt.compareSync(password, passwordHash);
-			return check;
-		},
-		generateJWT(payload) {
-			const token = jwt.sign(payload, process.env.SECRETKEY, {
-				expiresIn: ONE_DAY,
-			});
-			return token;
-		},
-	},
+	methods: {},
 };
