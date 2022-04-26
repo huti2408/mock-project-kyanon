@@ -10,18 +10,26 @@ const ProductModel = {
 		},
 		name: {
 			type: Sequelize.STRING,
-			allowNull: false,
+			validate: {
+				notNull: false,
+			},
 			unique: true,
 		},
 		images: {
 			type: Sequelize.JSON,
+			defaultValue: "[https://via.placeholder.com/500]",
 		},
 		price: {
 			type: Sequelize.INTEGER,
+			validate: {
+				notNull: false,
+
+				min: 0,
+			},
 		},
 		description: Sequelize.TEXT,
-		rating: {
-			type: Sequelize.INTEGER,
+		averageRating: {
+			type: Sequelize.FLOAT,
 			validate: {
 				min: 0,
 				max: 5,

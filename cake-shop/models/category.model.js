@@ -15,6 +15,7 @@ const categoryModel = {
 		},
 		image: {
 			type: Sequelize.STRING,
+			defaultValue: "https://via.placeholder.com/500",
 		},
 		description: Sequelize.TEXT,
 	},
