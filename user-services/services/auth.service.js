@@ -1,14 +1,12 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const {
 	NotFound,
 	Response,
 	InputError,
-	Create,
-} = require("../helper/response");
+	comparePassword,
+	generateJWT,
+} = require("../helper");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const _ = require("lodash");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
 
@@ -19,11 +17,11 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
-	async created() {
-		// console.log("this.adapter.db", this.adapter);
-		this.adapter.db.sync({ alter: true });
-	},
+	// async created() {
+	// 	console.log("this.adapter.db");
+	// },
 	actions: {
+		// auth/sign-in
 		signIn: {
 			rest: "POST /sign-in",
 			params: {
@@ -41,11 +39,8 @@ module.exports = {
 					throw NotFound("Email");
 				}
 				const user = existedUser.dataValues;
-				const comparePassword = this.comparePassword(
-					password,
-					user.password
-				);
-				if (!comparePassword) {
+				const match = comparePassword(password, user.password);
+				if (!match) {
 					return InputError(ctx, "Wrong Password");
 				}
 				const { role, id } = user;
@@ -54,7 +49,7 @@ module.exports = {
 					role,
 				};
 				// console.log("payload", payload);
-				const token = this.generateJWT(payload);
+				const token = generateJWT(payload);
 				new Promise((resolve, reject) => {
 					resolve(token);
 				}).then((token) => {
@@ -63,53 +58,6 @@ module.exports = {
 				return Response(ctx, { data: { token } });
 			},
 		},
-
-		signUp: {
-			rest: "POST /sign-up",
-			params: {
-				name: "string",
-				email: "string|email",
-				password: "string|min:6",
-			},
-			hooks: {
-				before(ctx) {
-					ctx.params.password = this.hashPassword(
-						ctx.params.password
-					);
-					ctx.params.role = "admin";
-					return ctx;
-				},
-			},
-			async handler(ctx) {
-				const entity = ctx.params;
-				const entityExists = await this.adapter.findOne({
-					where: {
-						email: entity.email,
-					},
-				});
-				if (entityExists) {
-					return InputError(ctx, "Email already register");
-				}
-				const user = await this.adapter.insert(entity);
-				return Create(ctx, "Sign up successfully", user);
-			},
-		},
 	},
-	methods: {
-		hashPassword(password) {
-			const salt = bcrypt.genSaltSync(10);
-			const hash = bcrypt.hashSync(password, salt);
-			return hash;
-		},
-		comparePassword(password, passwordHash) {
-			const check = bcrypt.compareSync(password, passwordHash);
-			return check;
-		},
-		generateJWT(payload) {
-			const token = jwt.sign(payload, process.env.SECRETKEY, {
-				expiresIn: ONE_DAY,
-			});
-			return token;
-		},
-	},
+	methods: {},
 };

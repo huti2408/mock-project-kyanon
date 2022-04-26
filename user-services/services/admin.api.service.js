@@ -18,7 +18,7 @@ module.exports = {
 	// More info about settings: https://moleculer.services/docs/0.14/moleculer-web.html
 	settings: {
 		// Exposed port
-		port: process.env.PORT || 3000,
+		port: process.env.PORT || 3001,
 
 		// Exposed IP
 		ip: "0.0.0.0",
@@ -28,34 +28,22 @@ module.exports = {
 
 		routes: [
 			{
-				path: "/api/",
-				name: "users",
+				path: "/api/admin",
+				name: "admin",
 				aliases: {
 					"POST /sign-in": "auth.signIn",
-					"POST /sign-up": "users.signUp",
-				},
-			},
-			{
-				path: "/api/users/",
-				name: "users-handler",
-				authentication: true,
-				authorization: true,
-				aliases: {
-					"GET /profile": "users.showProfile",
-					// "POST /sign-up": "users.signUp",
 				},
 			},
 			{
 				name: "deliveryInfor",
-				path: "/api/deli-infors/",
+				path: "/api/admin/deli-infors/",
 				authentication: true,
 				authorization: true,
 				aliases: {
-					"GET /": "deliveryinfors.getAllDeliveryOfUser",
-					"POST /": "deliveryinfors.create",
+					// admin-handler
+					"GET /get-all/": "deliveryinfors.list",
+					"GET /by-user/:userId": "deliveryinfors.getByUserId",
 					"GET /:id": "deliveryinfors.get",
-					"PUT /:id": "deliveryinfors.update",
-					"DELETE /:id": "deliveryinfors.remove",
 				},
 			},
 		],
@@ -176,15 +164,12 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		async authorize(ctx, route, req) {
-			const { role } = ctx.meta.user;
-			if (role == "customer") {
-				if (req.$action.auth === "required") {
-					throw Unauthorized();
-				} else {
-					return;
-				}
+			const { userId, role } = ctx.meta.user;
+			if (role == "admin") {
+				return;
+			} else {
+				throw Unauthorized();
 			}
-			throw Unauthorized();
 		},
 	},
 };

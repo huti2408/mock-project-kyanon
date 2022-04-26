@@ -4,7 +4,6 @@ const {
 	INTEGER,
 	UUID,
 	UUIDV4,
-	ARRAY,
 	Sequelize,
 	TEXT,
 } = require("sequelize");
@@ -46,18 +45,14 @@ const UserModel = {
 				min: 0,
 			},
 		},
+		deliveryDefault: {
+			type: UUID,
+		},
 		role: {
 			type: STRING,
 			defaultValue: "customer",
 			validate: {
 				isIn: [["admin", "customer"]],
-			},
-		},
-		deliveryId: {
-			type: ARRAY(UUID),
-			references: {
-				model: "deliveryinformations",
-				key: "id",
 			},
 		},
 	},
