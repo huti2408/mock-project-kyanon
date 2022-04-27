@@ -1,6 +1,14 @@
+const {
+	NotFound,
+	Response,
+	InputError,
+	comparePassword,
+	generateJWT,
+	Create,
+} = require("../helper");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { NotFound, Create, Response } = require("../helper/response");
+
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const _ = require("lodash");
@@ -11,16 +19,20 @@ const Sequelize = require("sequelize");
 const redis = new Redis();
 const PERMISSIONS_INDEX = 0;
 
+const ONE_DAY = 60 * 60 * 24;
 module.exports = {
 	name: "auth",
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
+
 	async started() {
 		// this.adapter.db.sync({ alter: true });
 	},
+
 	actions: {
-		login: {
+		// auth/sign-in
+		signIn: {
 			rest: "POST /sign-in",
 			params: {
 				email: { type: "email", min: 10, max: 100 },
@@ -34,7 +46,7 @@ module.exports = {
 					},
 				});
 				if (!existedUser) {
-					return NotFound(ctx, email);
+					throw NotFound("Email");
 				}
 				const user = existedUser.dataValues;
 				const comparePassword = bcrypt.compareSync(
@@ -52,12 +64,12 @@ module.exports = {
 					userId: user.id,
 					roleId,
 				};
-				const token = this.generateJWT(payload, 60 * 60 * 4);
-
+				// console.log("payload", payload);
+				const token = generateJWT(payload);
 				new Promise((resolve, reject) => {
 					resolve(token);
 				}).then((token) => {
-					redis.setex(user.id, 60 * 60 * 4, token);
+					redis.setex(user.id, ONE_DAY, token);
 				});
 				return Response(ctx, { data: { token } });
 			},

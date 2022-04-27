@@ -1,6 +1,6 @@
 const { STRING, BOOLEAN, UUID, UUIDV4 } = require("sequelize");
 const DeliveryInforModel = {
-	name: "deliveryinformation",
+	name: "delivery_information",
 	define: {
 		id: {
 			type: UUID,

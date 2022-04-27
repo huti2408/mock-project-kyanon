@@ -1,14 +1,6 @@
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const {
-	NotFound,
-	Get,
-	InputError,
-	Create,
-	hashPassword,
-	comparePassword,
-	generateJWT,
-} = require("../helper");
+const { Get, InputError, Create, hashPassword } = require("../helper");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
 const redis = new Redis();
@@ -18,6 +10,9 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
+	// async started() {
+	// 	this.adapter.db.sync({ alter: true });
+	// },
 	hooks: {
 		after: {
 			signup: function (ctx, res) {

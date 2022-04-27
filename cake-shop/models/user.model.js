@@ -5,6 +5,7 @@ const {
 	UUID,
 	UUIDV4,
 	Sequelize,
+	ENUM,
 	TEXT,
 } = require("sequelize");
 const UserModel = {
