@@ -1,23 +1,35 @@
+
+const {
+	NotFound,
+	Response,
+	InputError,
+	comparePassword,
+	generateJWT,
+} = require("../helper");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { NotFound, Create, Response } = require("../helper/response");
+
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
 
 const redis = new Redis();
-
+const ONE_DAY = 60 * 60 * 24;
 module.exports = {
 	name: "auth",
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
+
 	async started() {
 		this.adapter.db.sync({ alter: true });
 	},
+
 	actions: {
-		login: {
+		// auth/sign-in
+		signIn: {
 			rest: "POST /sign-in",
 			params: {
 				email: { type: "email", min: 10, max: 100 },
@@ -31,9 +43,14 @@ module.exports = {
 					},
 				});
 				if (!existedUser) {
-					return NotFound(ctx, email);
+					throw NotFound("Email");
 				}
 				const user = existedUser.dataValues;
+
+				const match = comparePassword(password, user.password);
+				if (!match) {
+					return InputError(ctx, "Wrong Password");
+
 				console.log(user, password);
 				const comparePassword = bcrypt.compareSync(
 					password,
@@ -42,90 +59,21 @@ module.exports = {
 				if (!comparePassword) {
 					return Response(ctx, { message: "Wrong password" });
 				}
-				// const permissions = await this.getPermission(user.id);
-				const role = user.role;
+				const { role, id } = user;
 				const payload = {
-					// permissions,
-					userId: user.id,
+					userId: id,
 					role,
 				};
-				const token = this.generateJWT(payload, 60 * 60 * 4);
-
+				// console.log("payload", payload);
+				const token = generateJWT(payload);
 				new Promise((resolve, reject) => {
 					resolve(token);
 				}).then((token) => {
-					redis.setex(user.id, 60 * 60 * 4, token);
+					redis.setex(user.id, ONE_DAY, token);
 				});
 				return Response(ctx, { data: { token } });
 			},
 		},
-		register: {
-			rest: "POST /sign-up",
-			params: {
-				email: { type: "email", min: 10, max: 100 },
-				password: { type: "string", min: 6 },
-				name: { type: "string", min: 6, max: 100 },
-				image: "string",
-				role: {
-					type: "string",
-					optional: true,
-					lowercase: true,
-				},
-			},
-			hooks: {
-				before(ctx) {
-					ctx.params.password = this.hashPassword(
-						ctx.params.password
-					);
-					return ctx;
-				},
-			},
-			async handler(ctx) {
-				const newUser = ctx.params;
-				const existedUser = await this.adapter.findOne({
-					where: {
-						email: newUser.email,
-					},
-				});
-				if (existedUser) {
-					return response(ctx, {
-						message: "Email is already registered",
-					});
-				}
-				await this.adapter.insert(newUser);
-				return Create(ctx, "Sign Up successfully!", newUser);
-			},
-		},
 	},
-	methods: {
-		hashPassword(password) {
-			const salt = bcrypt.genSaltSync(10);
-			const hash = bcrypt.hashSync(password, salt);
-			return hash;
-		},
-		generateJWT(payload, ttl) {
-			const token = jwt.sign({ payload }, process.env.SECRETKEY, {
-				expiresIn: ttl,
-			});
-			return token;
-		},
-		// async getPermission(userId) {
-		// 	const document = await this.adapter.db.query(
-		// 		"SELECT resource, action FROM permissions, user_permissions WHERE user_permissions.user_id = :userId AND user_permissions.permission_id=permissions.id",
-		// 		{
-		// 			replacements: { userId },
-		// 			type: Sequelize.SELECT,
-		// 		}
-		// 	);
-		// 	let permission = {};
-		// 	_.forEach(document, (value) => {
-		// 		const resource = value.resource;
-		// 		const action = value.action;
-		// 		permission[resource]
-		// 			? permission[resource].push(action)
-		// 			: (permission[resource] = [action]);
-		// 	});
-		// 	return permission;
-		// },
-	},
+	methods: {},
 };

@@ -5,6 +5,7 @@ const {
 	UUID,
 	UUIDV4,
 	Sequelize,
+	ENUM,
 	TEXT,
 } = require("sequelize");
 const UserModel = {
@@ -49,10 +50,11 @@ const UserModel = {
 			type: UUID,
 		},
 		role: {
-			type: STRING,
+			type: ENUM,
+			values: ["admin", "staff", "customer"],
 			defaultValue: "customer",
 			validate: {
-				isIn: [["admin", "customer"]],
+				isIn: [["admin", "customer", "staff"]],
 			},
 		},
 	},
