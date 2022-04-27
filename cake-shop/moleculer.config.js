@@ -63,7 +63,12 @@ module.exports = {
 
 	// Define a cacher.
 	// More info: https://moleculer.services/docs/0.14/caching.html
-	cacher: "Redis",
+	cacher: {
+		type: "Redis",
+		options: {
+			ttl: 60 * 60 * 2,
+		},
+	},
 
 	// Define a serializer.
 	// Available values: "JSON", "Avro", "ProtoBuf", "MsgPack", "Notepack", "Thrift".
@@ -197,9 +202,7 @@ module.exports = {
 	replCommands: null,
 
 	// Called after broker created.
-	created(broker) {
-		console.log("ENV", process.env.MySQL_URI);
-	},
+	created(broker) {},
 
 	// Called after broker started.
 	async started(broker) {},

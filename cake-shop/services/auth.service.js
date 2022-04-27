@@ -1,3 +1,4 @@
+
 const {
 	NotFound,
 	Response,
@@ -5,6 +6,10 @@ const {
 	comparePassword,
 	generateJWT,
 } = require("../helper");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { NotFound, Create, Response } = require("../helper/response");
+
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const UserModel = require("../models/user.model");
@@ -17,9 +22,11 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: UserModel,
-	// async started() {
-	// 	console.log("this.adapter.db");
-	// },
+
+	async started() {
+		this.adapter.db.sync({ alter: true });
+	},
+
 	actions: {
 		// auth/sign-in
 		signIn: {
@@ -39,9 +46,18 @@ module.exports = {
 					throw NotFound("Email");
 				}
 				const user = existedUser.dataValues;
+
 				const match = comparePassword(password, user.password);
 				if (!match) {
 					return InputError(ctx, "Wrong Password");
+
+				console.log(user, password);
+				const comparePassword = bcrypt.compareSync(
+					password,
+					user.password
+				);
+				if (!comparePassword) {
+					return Response(ctx, { message: "Wrong password" });
 				}
 				const { role, id } = user;
 				const payload = {
