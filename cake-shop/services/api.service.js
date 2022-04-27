@@ -61,8 +61,8 @@ module.exports = {
 			{
 				name: "product",
 				path: "/api/products/",
-				// authentication: true,
-				// authorization: true,
+				authentication: true,
+				authorization: true,
 				aliases: {
 					"GET /": "products.list",
 					"POST /": "products.create",
@@ -74,8 +74,8 @@ module.exports = {
 			{
 				name: "category",
 				path: "/api/categories/",
-				// authentication: true,
-				// authorization: true,
+				authentication: true,
+				authorization: true,
 				aliases: {
 					"GET /": "categories.list",
 					"POST /": "categories.create",
@@ -84,10 +84,23 @@ module.exports = {
 					"DELETE /:id": "categories.remove",
 				},
 			},
+			{
+				name: "voucher",
+				path: "/api/vouchers/",
+				// authentication: true,
+				// authorization: true,
+				aliases: {
+					"GET /": "vouchers.list",
+					"POST /": "vouchers.create",
+					"GET /:id": "vouchers.get",
+					"PUT /:id": "vouchers.update",
+					"DELETE /:id": "vouchers.remove",
+				},
+			},
 		],
 		// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 		callingOptions: {},
-		autoAliases: true,
+		// autoAliases: true,
 		bodyParsers: {
 			json: {
 				strict: false,
@@ -170,14 +183,13 @@ module.exports = {
 				if (token) {
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					const res = jwt.verify(token, process.env.SECRETKEY);
-					console.log("res", res);
+					// console.log("res", res);
 					const redisToken = await redis.get(res.userId);
 					// console.log("redisToken: ", redisToken);
 					if (!redisToken) {
 						// Invalid token
 						throw Unauthenticated();
 					}
-					ctx.meta.user = res;
 					ctx.meta.token = token;
 					return res;
 				} else {
@@ -202,15 +214,33 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		async authorize(ctx, route, req) {
-			const { role } = ctx.meta.user;
-			if (role == "customer") {
-				if (req.$action.auth === "required") {
-					throw Unauthorized();
-				} else {
+			const {
+				method,
+				route: { name },
+			} = req.$alias;
+			const { roleId, permissions } = ctx.meta.user;
+			if (!roleId && Object.keys(permissions).length === 0) {
+				throw Unauthorized();
+			}
+			if (roleId === 1) {
+				return;
+			} else {
+				let check = false;
+				_.forIn(permissions, (value, key) => {
+					if (key === name) {
+						_.map(value, (data, index) => {
+							if (data.toUpperCase() === method) {
+								check = true;
+							}
+						});
+					}
+				});
+				if (check) {
 					return;
+				} else {
+					throw Unauthorized();
 				}
 			}
-			throw Unauthorized();
 		},
 	},
 };

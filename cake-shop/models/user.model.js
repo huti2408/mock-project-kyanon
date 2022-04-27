@@ -48,11 +48,13 @@ const UserModel = {
 		deliveryDefault: {
 			type: UUID,
 		},
-		role: {
-			type: STRING,
-			defaultValue: "customer",
-			validate: {
-				isIn: [["admin", "customer"]],
+		roleId: {
+			type: INTEGER,
+			defaultValue: 3,
+
+			references: {
+				model: "roles",
+				key: "id",
 			},
 		},
 	},
