@@ -12,7 +12,7 @@ const jwt = require("jsonwebtoken");
  */
 
 module.exports = {
-	name: "api",
+	name: "admin",
 	mixins: [ApiGateway],
 
 	// More info about settings: https://moleculer.services/docs/0.14/moleculer-web.html

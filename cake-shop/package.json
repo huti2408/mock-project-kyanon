@@ -25,6 +25,7 @@
     "moleculer-repl": "^0.6.6"
   },
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.10",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.0",
     "http-status-codes": "^2.2.0",
