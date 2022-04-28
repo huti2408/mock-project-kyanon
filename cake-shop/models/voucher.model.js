@@ -11,18 +11,25 @@ const voucherModel = {
 		name: {
 			type: Sequelize.STRING,
 			allowNull: false,
+			validate: {
+				notNull: true,
+			},
 			unique: true,
-			isAlpha: true,
-			max: 20,
-			min: 6,
 		},
 		value: {
-			type: Sequelize.STRING,
+			type: Sequelize.INTEGER,
+			defaultValue: 0,
 		},
-		description: Sequelize.STRING,
-		use_remaining: {
-			type: Sequelize.STRING,
+		useRemaining: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			validate: {
+				notNull: true,
+				min: 0,
+			},
+			defaultValue: 0,
 		},
+		description: Sequelize.TEXT,
 	},
 };
 module.exports = voucherModel;
