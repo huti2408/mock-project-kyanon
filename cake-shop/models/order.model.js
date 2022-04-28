@@ -11,9 +11,11 @@ const orderModel = {
 		status: {
 			type: Sequelize.STRING,
 			allowNull: false,
+			defaultValue: "Chờ xác nhận",
 		},
 		total: {
 			type: Sequelize.BIGINT,
+			defaultValue: 0,
 		},
 		customer: {
 			type: Sequelize.UUID,
@@ -21,6 +23,10 @@ const orderModel = {
 				model: "users",
 				key: "id",
 			},
+		},
+		payment_status: {
+			type: Sequelize.STRING,
+			defaultValue: "chưa thanh toán",
 		},
 		payment_method: {
 			type: Sequelize.UUID,
@@ -33,13 +39,6 @@ const orderModel = {
 			type: Sequelize.UUID,
 			references: {
 				model: "vouchers",
-				key: "id",
-			},
-		},
-		detail: {
-			type: Sequelize.UUID,
-			references: {
-				model: "order_details",
 				key: "id",
 			},
 		},

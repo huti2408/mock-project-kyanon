@@ -34,7 +34,7 @@ module.exports = {
 					return NotFound(ctx, email);
 				}
 				const user = existedUser.dataValues;
-				console.log(user, password);
+				//console.log(user, password);
 				const comparePassword = bcrypt.compareSync(
 					password,
 					user.password

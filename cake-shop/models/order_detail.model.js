@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 const order_detailModel = {
-	name: "order_detail",
+	name: "order_details",
 	define: {
 		id: {
 			type: Sequelize.UUID,
@@ -14,8 +14,18 @@ const order_detailModel = {
 		price: {
 			type: Sequelize.BIGINT,
 		},
-		noet: {
+		note: {
 			type: Sequelize.TEXT,
+		},
+		total: {
+			type: Sequelize.BIGINT,
+		},
+		order: {
+			type: Sequelize.UUID,
+			references: {
+				model: "orders",
+				key: "id",
+			},
 		},
 		product: {
 			type: Sequelize.UUID,

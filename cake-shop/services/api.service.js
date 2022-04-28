@@ -61,23 +61,24 @@ module.exports = {
 			{
 				name: "order",
 				path: "/api/orders/",
-				authentication: true,
-				authorization: true,
+				// authentication: true,
+				// authorization: true,
 				aliases: {
 					"GET /": "orders.getAllOrderOfUser",
-					// "POST /": "orders.create",
-					// "GET /:id": "orders.get",
-					// "PUT /:id": "orders.update",
-					// "DELETE /:id": "orders.remove",
+					"GET /all": "orders.list",
+					"POST /": "orders.create",
+					"GET /:id": "orders.detail",
+					"PUT /:id": "orders.update",
+					"DELETE /:id": "orders.delete",
 				},
 			},
 			{
 				name: "voucher",
 				path: "/api/vouchers/",
-				authentication: true,
-				authorization: true,
+				// authentication: true,
+				// authorization: true,
 				aliases: {
-					//"GET /": "orders.getAllOrderOfUser",
+					// "GET /": "orders.getAllOrderOfUser",
 					// "POST /": "orders.create",
 					// "GET /:id": "orders.get",
 					// "PUT /:id": "orders.update",
@@ -87,14 +88,14 @@ module.exports = {
 			{
 				name: "order_detail",
 				path: "/api/order_details/",
-				authentication: true,
-				authorization: true,
+				// authentication: true,
+				// authorization: true,
 				aliases: {
-					//"GET /": "orders.getAllOrderOfUser",
-					// "POST /": "orders.create",
-					// "GET /:id": "orders.get",
-					// "PUT /:id": "orders.update",
-					// "DELETE /:id": "orders.remove",
+					"GET /": "order_details.getAllDetailOfOrder",
+					"POST /": "order_details.create",
+					"GET /:id": "orders.get",
+					"PUT /:id": "orders.update",
+					"DELETE /:id": "order_details.delete",
 				},
 			},
 			{
@@ -209,9 +210,9 @@ module.exports = {
 				if (token) {
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					const res = jwt.verify(token, process.env.SECRETKEY);
-					console.log("res", res);
-					const redisToken = await redis.get(res.userId);
-					// console.log("redisToken: ", redisToken);
+					//console.log("res", res);
+					const redisToken = await redis.get(res.payload.userId);
+					//console.log("redisToken: ", redisToken);
 					if (!redisToken) {
 						// Invalid token
 						throw Unauthenticated();
