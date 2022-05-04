@@ -18,7 +18,7 @@ module.exports = {
 	// More info about settings: https://moleculer.services/docs/0.14/moleculer-web.html
 	settings: {
 		// Exposed port
-		port: process.env.PORT || 3001,
+		port: process.env.PORT_ADMIN || 3001,
 
 		// Exposed IP
 		ip: "0.0.0.0",
@@ -29,11 +29,12 @@ module.exports = {
 		routes: [
 			{
 				path: "/api/admin",
-				name: "admin",
+				name: "auth",
 				aliases: {
 					"POST /sign-in": "auth.signIn",
 				},
 			},
+
 			{
 				name: "deliveryInfor",
 				path: "/api/admin/deli-infors/",

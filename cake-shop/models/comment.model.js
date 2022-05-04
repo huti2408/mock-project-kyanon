@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
-const categoryModel = {
-	name: "category",
+const CommentModel = {
+	name: "comment",
 	define: {
 		id: {
 			type: Sequelize.UUID,
@@ -9,20 +9,28 @@ const categoryModel = {
 			defaultValue: Sequelize.UUIDV4,
 		},
 		content: {
-			type: Sequelize.STRING,
+			type: Sequelize.TEXT,
 			allowNull: false,
+			validate: {
+				notNull: true,
+			},
 		},
 		rating: {
-			type: Sequelize.STRING,
+			type: Sequelize.INTEGER,
+			defaultValue: 0,
+			validate: {
+				min: 0,
+				max: 5,
+			},
 		},
-		user: {
+		user_id: {
 			type: Sequelize.UUID,
 			references: {
 				model: "users",
 				key: "id",
 			},
 		},
-		order: {
+		order_id: {
 			type: Sequelize.UUID,
 			references: {
 				model: "orders",
@@ -31,4 +39,4 @@ const categoryModel = {
 		},
 	},
 };
-module.exports = categoryModel;
+module.exports = CommentModel;

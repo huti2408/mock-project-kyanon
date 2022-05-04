@@ -10,8 +10,9 @@ const ProductModel = {
 		},
 		name: {
 			type: Sequelize.STRING,
+			allowNull: false,
 			validate: {
-				notNull: false,
+				notNull: true,
 			},
 			unique: true,
 		},
@@ -21,9 +22,9 @@ const ProductModel = {
 		},
 		price: {
 			type: Sequelize.INTEGER,
+			allowNull: false,
 			validate: {
-				notNull: false,
-
+				notNull: true,
 				min: 0,
 			},
 		},

@@ -29,6 +29,7 @@ const voucherModel = {
 		percent: {
 			type: Sequelize.FLOAT,
 		},
+		description: Sequelize.TEXT,
 	},
 };
 module.exports = voucherModel;

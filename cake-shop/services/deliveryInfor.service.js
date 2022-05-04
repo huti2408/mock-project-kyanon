@@ -1,6 +1,6 @@
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const DeliveryInforModel = require("../models/deliveryInfor.model");
+const DeliveryInforModel = require("../models/delivery-information.model");
 const userService = require("./user.service");
 const { Get, NotFound, Create, Update } = require("../helper");
 module.exports = {
@@ -8,6 +8,9 @@ module.exports = {
 	mixins: [DbService, userService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: DeliveryInforModel,
+	// async started() {
+	// 	this.adapter.db.sync({ alter: true });
+	// },
 	actions: {
 		// *ADMIN
 		// get-all-delivery == /
@@ -79,6 +82,10 @@ module.exports = {
 				id: "string",
 			},
 			async handler(ctx) {
+				const delivery = ctx.call("deliveryinfors.get", {
+					id: ctx.params.id,
+				});
+				console.log("delivery", delivery);
 				// const deliveryDelete = await this.adapter.deleteById(
 				// 	ctx.params.id
 				// );
