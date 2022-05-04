@@ -70,6 +70,7 @@ module.exports = {
 					"GET /:id": "orders.detail",
 					"PUT /:id": "orders.update",
 					"DELETE /:id": "orders.delete",
+					"PUT voucher/": "orders.addVoucher",
 				},
 			},
 			{
@@ -78,11 +79,10 @@ module.exports = {
 				// authentication: true,
 				// authorization: true,
 				aliases: {
-					// "GET /": "orders.getAllOrderOfUser",
-					// "POST /": "orders.create",
-					// "GET /:id": "orders.get",
-					// "PUT /:id": "orders.update",
-					// "DELETE /:id": "orders.remove",
+					"POST /": "vouchers.create",
+					"GET /:id": "vouchers.get",
+					"PUT /:id": "vouchers.update",
+					"DELETE /:id": "vouchers.delete",
 				},
 			},
 			{

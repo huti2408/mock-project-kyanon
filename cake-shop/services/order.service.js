@@ -2,7 +2,7 @@ const orderModel = require("../models/order.model");
 const { QueryTypes } = require("@sequelize/core");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-//const orderDetail = require("../services/order_detail.service");
+const { StatusCodes } = require("http-status-codes");
 const _ = require("lodash");
 const {
 	NotFound,
@@ -12,6 +12,7 @@ const {
 	Delete,
 	Update,
 } = require("../helper");
+const { orderBy } = require("lodash");
 //const { QueryTypes } = require("sequelize/types");
 module.exports = {
 	name: "orders",
@@ -42,6 +43,42 @@ module.exports = {
 					throw NotFound("Orders");
 				}
 				return Get(ctx, listOrders);
+			},
+		},
+		async getDetail(ctx, order) {
+			console.log("id don hang:", ctx.params.order);
+			const id = ctx.params.order;
+			const data = await this.adapter.findOne({ where: { id } });
+			//console.log(data);
+			return data;
+		},
+		addVoucher: {
+			rest: "PUT /",
+			async handler(ctx) {
+				//console.log(ctx.params);
+				const { order, voucher } = ctx.params;
+				const id = order;
+				//console.log(order, voucher);
+				let order_v = await this.adapter.findOne({ where: { id } });
+				//console.log(order.dataValues);
+				//console.log(id, voucher);
+				const data = await ctx.call("vouchers.checkValid", {
+					ctx,
+					order,
+					voucher,
+				});
+				if (data.valid === true) {
+					order_v["total"] = order_v.total - data.discount;
+					order_v["voucher"] = voucher;
+					await this.adapter.updateById(order_v.dataValues.id, {
+						$set: order_v.dataValues,
+					});
+					console.log(data);
+					return Update(ctx, order_v);
+				} else {
+					ctx.meta.$statusCode = StatusCodes.BAD_REQUEST;
+					return { message: data.msg };
+				}
 			},
 		},
 		getAllOrderOfUser: {
