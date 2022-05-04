@@ -32,7 +32,7 @@ module.exports = {
 
 	actions: {
 		// auth/sign-in
-		signIn: {
+		login: {
 			rest: "POST /sign-in",
 			params: {
 				email: { type: "email", min: 10, max: 100 },

@@ -23,14 +23,21 @@ const CommentModel = {
 				max: 5,
 			},
 		},
-		user_id: {
+		userId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "users",
 				key: "id",
 			},
 		},
-		order_id: {
+		productId: {
+			type: Sequelize.UUID,
+			references: {
+				model: "products",
+				key: "id",
+			},
+		},
+		orderId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "orders",
