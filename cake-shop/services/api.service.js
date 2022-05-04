@@ -137,8 +137,20 @@ module.exports = {
 					"DELETE /:id": "vouchers.remove",
 				},
 			},
+			{
+				name: "comment",
+				path: "/api/comments/",
+				// authentication: true,
+				// authorization: true,
+				aliases: {
+					"GET /": "comments.getAllCommentOfUser",
+					"POST /": "comments.create",
+					"GET /:id": "comments.get",
+					"PUT /:id": "comments.update",
+					"DELETE /:id": "comments.remove",
+				},
+			},
 		],
-		// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 		callingOptions: {},
 		// autoAliases: true,
 		bodyParsers: {
