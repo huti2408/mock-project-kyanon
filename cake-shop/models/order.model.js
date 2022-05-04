@@ -17,7 +17,7 @@ const orderModel = {
 			type: Sequelize.BIGINT,
 			defaultValue: 0,
 		},
-		customer: {
+		customerId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "users",
@@ -26,16 +26,17 @@ const orderModel = {
 		},
 		payment_status: {
 			type: Sequelize.STRING,
-			defaultValue: "chưa thanh toán",
+			defaultValue: "Chưa thanh toán",
 		},
-		payment_method: {
+		paymentMethodId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "payments",
 				key: "id",
 			},
+			defaultValue: "94688fcc-eba4-40a6-938e-7a507c048c61",
 		},
-		voucher: {
+		voucherId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "vouchers",

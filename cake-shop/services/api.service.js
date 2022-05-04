@@ -61,7 +61,7 @@ module.exports = {
 			{
 				name: "order",
 				path: "/api/orders/",
-				// authentication: true,
+				authentication: true,
 				// authorization: true,
 				aliases: {
 					"GET /": "orders.getAllOrderOfUser",
@@ -109,6 +109,7 @@ module.exports = {
 					"GET /:id": "products.get",
 					"PUT /:id": "products.update",
 					"DELETE /:id": "products.remove",
+					"GET /by-category": "products.getByCategory",
 				},
 			},
 			{

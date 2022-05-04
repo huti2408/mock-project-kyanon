@@ -1,23 +1,22 @@
 const orderModel = require("../models/order.model");
-const { QueryTypes } = require("@sequelize/core");
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-//const orderDetail = require("../services/order_detail.service");
-const _ = require("lodash");
 const {
 	NotFound,
-	Response,
 	Get,
 	Create,
 	Delete,
 	Update,
+	Response,
 } = require("../helper");
-//const { QueryTypes } = require("sequelize/types");
 module.exports = {
 	name: "orders",
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: orderModel,
+	async started() {
+		// this.adapter.db.sync({ alter: true });
+	},
 	actions: {
 		list: {
 			rest: "GET /get-all/",
@@ -25,7 +24,10 @@ module.exports = {
 			async handler(ctx) {
 				const listOrders = await this.adapter.find({});
 				if (listOrders.length == 0) {
-					throw NotFound("Orders");
+					return Response(ctx, {
+						message: "Orders is empty",
+						listOrders,
+					});
 				}
 				return Get(ctx, listOrders);
 			},
@@ -34,11 +36,12 @@ module.exports = {
 			rest: "GET /:id",
 			//auth: "required",
 			async handler(ctx) {
+				console.log(ctx.meta.user);
 				const { id } = ctx.params;
 				const listOrders = await this.adapter.findOne({
 					where: { id },
 				});
-				if (listOrders.length == 0) {
+				if (!listOrders || listOrders.length == 0) {
 					throw NotFound("Orders");
 				}
 				return Get(ctx, listOrders);
@@ -49,7 +52,7 @@ module.exports = {
 			async handler(ctx) {
 				const { userId } = ctx.meta.user;
 				const listOrdersByUser = await this.getAllOrderOfUser(userId);
-				if (listOrdersByUser.length == 0) {
+				if (!listOrdersByUser || listOrdersByUser.length == 0) {
 					throw NotFound("Orders");
 				}
 				return Get(ctx, listOrdersByUser);
@@ -58,20 +61,39 @@ module.exports = {
 		create: {
 			rest: "POST/",
 			params: {
-				customer: { type: "string" },
+				paymentMethodId: { type: "string", optional: true },
+				voucherId: { type: "string", optional: true },
+				details: {
+					type: "array",
+					items: {
+						type: "object",
+						props: {
+							productId: { type: "string" },
+							amount: { type: "number", positive: true },
+							note: { type: "string", optional: true },
+						},
+					},
+				},
 			},
 			async handler(ctx) {
-				const { customer } = ctx.params;
-				//console.log(customer);
-				await this.adapter.insert(ctx.params);
+				const customerId = ctx.meta.user.userId;
+				const { details } = ctx.params;
+				const newEnity = ctx.params;
+				await this.adapter.insert({ newEnity, customerId });
 				let newOrder = await this.adapter.findOne({
-					where: { customer },
+					where: { customerId },
 				});
-				//console.log(newOrder);
-				for (let i = 0; i < ctx.params.details.length; i++) {
-					ctx.params.details[i]["order"] = newOrder.dataValues.id;
-					const body = ctx.params.details[i];
-					console.log(ctx.params.details[i]);
+				if (details.length === 0) {
+					new Promise((resolve, reject) => {
+						resolve(newOrder.id);
+					}).then(async (orderId) => {
+						await this.adapter.removeById(orderId);
+					});
+					return NotFound("Details");
+				}
+				for (let i = 0; i < details.length; i++) {
+					details[i]["order"] = newOrder.dataValues.id;
+					const body = details[i];
 					newOrder["total"] += await ctx.call("order_details.add", {
 						body,
 					});

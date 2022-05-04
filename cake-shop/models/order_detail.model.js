@@ -27,7 +27,7 @@ const order_detailModel = {
 				key: "id",
 			},
 		},
-		product: {
+		productId: {
 			type: Sequelize.UUID,
 			references: {
 				model: "products",

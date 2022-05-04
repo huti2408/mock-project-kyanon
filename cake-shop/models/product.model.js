@@ -36,7 +36,13 @@ const ProductModel = {
 				max: 5,
 			},
 		},
-		comments: Sequelize.JSON,
+		commentId: {
+			type: Sequelize.UUID,
+			references: {
+				model: "comments",
+				key: "id",
+			},
+		},
 		categoryId: {
 			type: Sequelize.UUID,
 			references: {

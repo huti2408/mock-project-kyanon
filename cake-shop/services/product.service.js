@@ -104,9 +104,23 @@ module.exports = {
 				return Delete(ctx, product);
 			},
 		},
-		// getByCategory{
-		// 	rest:"GET /",
-		// }
+		getByCategory: {
+			rest: "GET /by-category/",
+			params: { categoryId: "string" },
+
+			async handler(ctx) {
+				const { categoryId } = ctx.params;
+				const products = await this.adapter.find({
+					query: {
+						categoryId,
+					},
+				});
+				if (!products || products.length === 0) {
+					return NotFound("Product");
+				}
+				return Get(ctx, products);
+			},
+		},
 	},
 	methods: {},
 };

@@ -36,15 +36,16 @@ module.exports = {
 			},
 
 			{
-				name: "deliveryInfor",
-				path: "/api/admin/deli-infors/",
+				name: "payment",
+				path: "/api/admin/payment",
 				authentication: true,
 				authorization: true,
 				aliases: {
 					// admin-handler
-					"GET /get-all/": "deliveryinfors.list",
-					"GET /by-user/:userId": "deliveryinfors.getByUserId",
-					"GET /:id": "deliveryinfors.get",
+					"GET /": "payments.list",
+					"POST /": "payments.create",
+					"PUT /:id": "payments.update",
+					"DELETE /:id": "payments.remove",
 				},
 			},
 		],
@@ -133,14 +134,12 @@ module.exports = {
 				if (token) {
 					// Returns the resolved user. It will be set to the `ctx.meta.user`
 					const res = jwt.verify(token, process.env.SECRETKEY);
-					console.log("res", res);
 					const redisToken = await redis.get(res.userId);
 					// console.log("redisToken: ", redisToken);
 					if (!redisToken) {
 						// Invalid token
 						throw Unauthenticated();
 					}
-					ctx.meta.user = res;
 					ctx.meta.token = token;
 					return res;
 				} else {
@@ -165,8 +164,8 @@ module.exports = {
 		 * @returns {Promise}
 		 */
 		async authorize(ctx, route, req) {
-			const { userId, role } = ctx.meta.user;
-			if (role == "admin") {
+			const { roleId } = ctx.meta.user;
+			if (roleId && roleId === 1) {
 				return;
 			} else {
 				throw Unauthorized();

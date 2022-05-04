@@ -15,6 +15,9 @@ module.exports = {
 	mixins: [DbService],
 	adapter: new SqlAdapter(process.env.MySQL_URI),
 	model: order_detailModel,
+	async started() {
+		// this.adapter.db.sync({ alter: true });
+	},
 	actions: {
 		detail: {
 			rest: "GET /:id",
@@ -70,12 +73,11 @@ module.exports = {
 			},
 		},
 		async add(body) {
-			console.log(body.params.body);
 			const data = body.params.body;
 			const price = await this.adapter.db.query(
 				"select price from products where id = ?",
 				{
-					replacements: [data.product],
+					replacements: [data.productId],
 					type: QueryTypes.SELECT,
 				}
 			);
