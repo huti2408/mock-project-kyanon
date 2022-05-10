@@ -48,6 +48,18 @@ module.exports = {
 					"DELETE /:id": "payments.remove",
 				},
 			},
+			{
+				name: "role-permission",
+				path: "/api/admin/role-permission",
+				authentication: true,
+				authorization: true,
+				aliases: {
+					// admin-handler
+					"GET /": "rolePermissions.list",
+					"POST /": "rolePermissions.create",
+					"DELETE /:id": "rolePermissions.remove",
+				},
+			},
 		],
 		// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 		callingOptions: {},
@@ -136,7 +148,7 @@ module.exports = {
 					const res = jwt.verify(token, process.env.SECRETKEY);
 					const redisToken = await redis.get(res.userId);
 					// console.log("redisToken: ", redisToken);
-					if (!redisToken) {
+					if (!redisToken || token !== redisToken) {
 						// Invalid token
 						throw Unauthenticated();
 					}

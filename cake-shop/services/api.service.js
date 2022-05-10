@@ -43,6 +43,7 @@ module.exports = {
 				aliases: {
 					"GET /profile": "users.showProfile",
 					// "POST /sign-up": "users.signUp",
+					"GET /get-by-role": "users.listUsersByRole",
 				},
 			},
 			{
@@ -64,8 +65,8 @@ module.exports = {
 				authentication: true,
 				// authorization: true,
 				aliases: {
-					"GET /": "orders.getAllOrderOfUser",
-					"GET /all": "orders.list",
+					"GET /:userId": "orders.getAllOrderOfUser",
+					"GET /": "orders.list",
 					"POST /": "orders.create",
 					"GET /:id": "orders.detail",
 					"PUT /:id": "orders.update",
@@ -102,7 +103,7 @@ module.exports = {
 				name: "product",
 				path: "/api/products/",
 				authentication: true,
-				authorization: true,
+				// authorization: true,
 				aliases: {
 					"GET /": "products.list",
 					"POST /": "products.create",
@@ -136,6 +137,19 @@ module.exports = {
 					"GET /:id": "vouchers.get",
 					"PUT /:id": "vouchers.update",
 					"DELETE /:id": "vouchers.remove",
+				},
+			},
+			{
+				name: "comment",
+				path: "/api/comments/",
+				authentication: true,
+				// authorization: true,
+				aliases: {
+					"GET /:productId": "comments.listByProduct",
+					"POST /:productId": "comments.createOnProduct",
+					// "GET /:id": "comments.get",
+					"PUT /:id": "comments.update",
+					"DELETE /:id": "comments.remove",
 				},
 			},
 		],
@@ -227,7 +241,7 @@ module.exports = {
 					// console.log("res", res);
 					const redisToken = await redis.get(res.userId);
 					// console.log("redisToken: ", redisToken);
-					if (!redisToken) {
+					if (!redisToken || token !== redisToken) {
 						// Invalid token
 						throw Unauthenticated();
 					}

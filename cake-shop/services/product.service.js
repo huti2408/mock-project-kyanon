@@ -67,14 +67,20 @@ module.exports = {
 			rest: "PUT /:id",
 			params: {
 				id: "string",
-				name: { type: "string", min: 3, max: 200 },
-				images: { type: "array", items: "string" },
-				price: { type: "number", positive: true, integer: true },
-				description: { type: "string" },
-				categoryId: { type: "string" },
+				name: { type: "string", min: 3, max: 200, optional: true },
+				images: { type: "array", items: "string", optional: true },
+				price: {
+					type: "number",
+					positive: true,
+					integer: true,
+					optional: true,
+				},
+				description: { type: "string", optional: true },
+				categoryId: { type: "string", optional: true },
 			},
 			async handler(ctx) {
-				const { id } = ctx.params;
+				const { id, name, images, price, description, categoryId } =
+					ctx.params;
 				const product = await this.adapter.findOne({
 					where: {
 						id,
@@ -83,7 +89,14 @@ module.exports = {
 				if (!product) {
 					return NotFound("Product");
 				}
-				await this.adapter.updateById(id);
+				const updatedProduct = {
+					name,
+					images,
+					price,
+					description,
+					categoryId,
+				};
+				await this.adapter.updateById(id, updatedProduct);
 				return Update(ctx, product);
 			},
 		},
@@ -119,6 +132,65 @@ module.exports = {
 					return NotFound("Product");
 				}
 				return Get(ctx, products);
+			},
+		},
+		updateRating: {
+			params: {
+				id: "string",
+				rate: { type: "number", min: 0, max: 5, optional: true },
+				isNewRating: { type: "boolean", default: false },
+			},
+			async handler(ctx) {
+				const { id, rate, isNewRating } = ctx.params;
+				const product = await this.adapter.findOne({
+					where: {
+						id,
+					},
+				});
+				if (!product) {
+					return NotFound("Product");
+				} else {
+					const commentsOfProduct = (
+						await ctx.call("comments.listByProduct", {
+							productId: id,
+						})
+					).data;
+					let ratePoints = [];
+					if (!commentsOfProduct) {
+						ratePoints = [rate];
+						const ratingCount = 1;
+						const averageRating = rate;
+						await this.adapter.updateById(id, {
+							$set: { ratingCount, averageRating },
+						});
+						return Update(ctx, product);
+					} else {
+						commentsOfProduct.map((comment) => {
+							ratePoints.push(comment.dataValues.rating);
+						});
+						if (isNewRating) {
+							ratePoints.push(rate);
+						}
+
+						const totalRate = ratePoints.reduce(
+							(accum, currentRate) => {
+								return accum + currentRate;
+							},
+							0
+						);
+						console.log(totalRate);
+						const newRatingCount = ratePoints.length;
+						const newAverageRating = totalRate / newRatingCount;
+						const updatedRate = {
+							ratingCount: newRatingCount,
+							averageRating: newAverageRating,
+						};
+						await this.adapter.updateById(id, {
+							$set: updatedRate,
+						});
+						return Update(ctx, product);
+					}
+				}
 			},
 		},
 	},

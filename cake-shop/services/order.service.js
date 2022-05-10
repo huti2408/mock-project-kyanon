@@ -19,7 +19,7 @@ module.exports = {
 	},
 	actions: {
 		list: {
-			rest: "GET /get-all/",
+			rest: "GET /",
 			//auth: "required",
 			async handler(ctx) {
 				const listOrders = await this.adapter.find({});
@@ -48,9 +48,12 @@ module.exports = {
 			},
 		},
 		getAllOrderOfUser: {
-			rest: "GET /",
+			rest: "GET /:userId",
+			params: {
+				userId: "string",
+			},
 			async handler(ctx) {
-				const { userId } = ctx.meta.user;
+				const { userId } = ctx.params;
 				const listOrdersByUser = await this.getAllOrderOfUser(userId);
 				if (!listOrdersByUser || listOrdersByUser.length == 0) {
 					throw NotFound("Orders");
@@ -84,7 +87,7 @@ module.exports = {
 					where: { customerId },
 				});
 				if (details.length === 0) {
-					new Promise((resolve, reject) => {
+					new Promise((resolve) => {
 						resolve(newOrder.id);
 					}).then(async (orderId) => {
 						await this.adapter.removeById(orderId);
