@@ -11,6 +11,7 @@ const {
 	Create,
 	Delete,
 	Update,
+	BadRequest,
 } = require("../helper");
 const { orderBy } = require("lodash");
 //const { QueryTypes } = require("sequelize/types");
@@ -144,15 +145,23 @@ module.exports = {
 				// 		}
 				// 	);
 				// });
-				await this.adapter.updateById(id, {
-					$set: ctx.params,
-				});
-				const order_new = await this.adapter.findOne({
-					where: {
-						id,
-					},
-				});
-				return Update(ctx, order_new);
+				const field = keys(ctx.params);
+				if (_.includes(field, "status")) {
+					await this.adapter.updateById(id, {
+						$set: ctx.params,
+					});
+					const order_new = await this.adapter.findOne({
+						where: {
+							id,
+						},
+					});
+					return Update(ctx, order_new);
+				} else {
+					return BadRequest(
+						ctx,
+						"Not have permission to update order"
+					);
+				}
 			},
 		},
 		delete: {
