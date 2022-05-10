@@ -123,14 +123,15 @@ module.exports = {
 		update: {
 			rest: "PUT /:id",
 			async handler(ctx) {
-				console.log(ctx.params);
+				//console.log(ctx.params);
 				const { id } = ctx.params;
 				const order_old = await this.adapter.findOne({
 					where: {
 						id,
 					},
 				});
-				if (!order_old) {
+				console.log(order_old);
+				if (order_old === null) {
 					return NotFound("order");
 				}
 				//console.log(update_field);
@@ -145,7 +146,7 @@ module.exports = {
 				// 		}
 				// 	);
 				// });
-				const field = keys(ctx.params);
+				const field = Object.keys(ctx.params);
 				if (_.includes(field, "status")) {
 					await this.adapter.updateById(id, {
 						$set: ctx.params,
