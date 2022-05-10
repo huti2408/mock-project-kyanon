@@ -29,19 +29,12 @@ const ProductModel = {
 			},
 		},
 		description: Sequelize.TEXT,
+		ratingCount: {
+			type: Sequelize.INTEGER,
+			defaultValue: 0,
+		},
 		averageRating: {
 			type: Sequelize.FLOAT,
-			validate: {
-				min: 0,
-				max: 5,
-			},
-		},
-		commentId: {
-			type: Sequelize.UUID,
-			references: {
-				model: "comments",
-				key: "id",
-			},
 		},
 		categoryId: {
 			type: Sequelize.UUID,

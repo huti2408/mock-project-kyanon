@@ -1,6 +1,12 @@
 const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
-const { Get, InputError, Create, hashPassword } = require("../helper");
+const {
+	Get,
+	InputError,
+	Create,
+	hashPassword,
+	NotFound,
+} = require("../helper");
 const UserModel = require("../models/user.model");
 const Redis = require("ioredis");
 const redis = new Redis();
@@ -76,6 +82,21 @@ module.exports = {
 			async handler(ctx) {
 				const user = await this.adapter.findById(ctx.meta.user.userId);
 				return Get(ctx, user);
+			},
+		},
+		listUsersByRole: {
+			rest: "GET /get-by-role",
+
+			params: { roleId: { type: "number" } },
+			async handler(ctx) {
+				const { roleId } = ctx.params;
+				const users = await this.adapter.find({
+					query: { roleId },
+				});
+				if (!users || users.length === 0) {
+					return NotFound("Users");
+				}
+				return Get(ctx, users);
 			},
 		},
 		// updateProfile == /update-profile

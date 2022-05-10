@@ -35,10 +35,13 @@ module.exports = {
 		},
 		getAllDetailOfOrder: {
 			rest: "GET /",
+			params: {
+				orderId: "string",
+			},
 			async handler(ctx) {
-				const { userId } = ctx.meta.user;
+				const { orderId } = ctx.params;
 				const listDetailByOrder = await this.getAllDetailOfOrder(
-					userId
+					orderId
 				);
 				if (listDetailByOrder.length == 0) {
 					throw NotFound("Orders");
