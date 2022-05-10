@@ -269,7 +269,7 @@ module.exports = {
 				let check = false;
 				_.forIn(permissions, (value, key) => {
 					if (key === name) {
-						_.map(value, (data, index) => {
+						_.map(value, (data) => {
 							if (data.toUpperCase() === method) {
 								check = true;
 							}

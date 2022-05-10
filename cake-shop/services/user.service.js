@@ -2,9 +2,6 @@ const SqlAdapter = require("moleculer-db-adapter-sequelize");
 const DbService = require("moleculer-db");
 const { Get, InputError, Create, hashPassword } = require("../helper");
 const UserModel = require("../models/user.model");
-const Redis = require("ioredis");
-const redis = new Redis();
-const ONE_DAY = 60 * 60 * 24;
 module.exports = {
 	name: "users",
 	mixins: [DbService],
