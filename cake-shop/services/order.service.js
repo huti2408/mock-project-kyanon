@@ -8,6 +8,7 @@ const {
 	Delete,
 	Update,
 	Response,
+	BadRequest,
 } = require("../helper");
 module.exports = {
 	name: "orders",
@@ -45,6 +46,42 @@ module.exports = {
 					throw NotFound("Orders");
 				}
 				return Get(ctx, listOrders);
+			},
+		},
+		async getDetail(ctx, order) {
+			console.log("id don hang:", ctx.params.order);
+			const id = ctx.params.order;
+			const data = await this.adapter.findOne({ where: { id } });
+			//console.log(data);
+			return data;
+		},
+		addVoucher: {
+			rest: "PUT /",
+			async handler(ctx) {
+				//console.log(ctx.params);
+				const { order, voucher } = ctx.params;
+				const id = order;
+				//console.log(order, voucher);
+				let order_v = await this.adapter.findOne({ where: { id } });
+				//console.log(order.dataValues);
+				//console.log(id, voucher);
+				const data = await ctx.call("vouchers.checkValid", {
+					ctx,
+					order,
+					voucher,
+				});
+				if (data.valid === true) {
+					order_v["total"] = order_v.total - data.discount;
+					order_v["voucher"] = voucher;
+					await this.adapter.updateById(order_v.dataValues.id, {
+						$set: order_v.dataValues,
+					});
+					console.log(data);
+					return Update(ctx, order_v);
+				} else {
+					ctx.meta.$statusCode = 400;
+					return { message: data.msg };
+				}
 			},
 		},
 		getAllOrderOfUser: {
@@ -110,14 +147,15 @@ module.exports = {
 		update: {
 			rest: "PUT /:id",
 			async handler(ctx) {
-				console.log(ctx.params);
+				//console.log(ctx.params);
 				const { id } = ctx.params;
 				const order_old = await this.adapter.findOne({
 					where: {
 						id,
 					},
 				});
-				if (!order_old) {
+				console.log(order_old);
+				if (order_old === null) {
 					return NotFound("order");
 				}
 				//console.log(update_field);
@@ -132,15 +170,23 @@ module.exports = {
 				// 		}
 				// 	);
 				// });
-				await this.adapter.updateById(id, {
-					$set: ctx.params,
-				});
-				const order_new = await this.adapter.findOne({
-					where: {
-						id,
-					},
-				});
-				return Update(ctx, order_new);
+				const field = Object.keys(ctx.params);
+				if (_.includes(field, "status")) {
+					await this.adapter.updateById(id, {
+						$set: ctx.params,
+					});
+					const order_new = await this.adapter.findOne({
+						where: {
+							id,
+						},
+					});
+					return Update(ctx, order_new);
+				} else {
+					return BadRequest(
+						ctx,
+						"Not have permission to update order"
+					);
+				}
 			},
 		},
 		delete: {

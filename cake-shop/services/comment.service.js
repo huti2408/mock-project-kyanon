@@ -105,6 +105,34 @@ module.exports = {
 				}
 			},
 		},
+		detail: {
+			rest: "GET /:id",
+			//auth: "required",
+			async handler(ctx) {
+				const { id } = ctx.params;
+				const comment = await this.adapter.findOne({
+					where: { id },
+				});
+				if (comment.length == 0) {
+					throw NotFound("comment");
+				}
+				return Get(ctx, comment);
+			},
+		},
+		getAllCommentOfUser: {
+			rest: "GET /",
+			async handler(ctx) {
+				const { userId } = ctx.meta.user;
+				const listCommentByUser = await this.getAllCommentOfUser(
+					userId
+				);
+				if (listCommentByUser.length == 0) {
+					throw NotFound("User");
+				}
+				return Get(ctx, listCommentByUser);
+			},
+		},
+
 		update: {
 			rest: "PUT /:id",
 			params: {

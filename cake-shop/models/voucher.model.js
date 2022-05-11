@@ -10,24 +10,24 @@ const voucherModel = {
 		},
 		name: {
 			type: Sequelize.STRING,
-			allowNull: false,
-			validate: {
-				notNull: true,
-			},
-			unique: true,
 		},
 		value: {
-			type: Sequelize.INTEGER,
-			defaultValue: 0,
+			type: Sequelize.BIGINT,
 		},
-		useRemaining: {
+		description: {
+			type: Sequelize.STRING,
+		},
+		quantity_remaining: {
 			type: Sequelize.INTEGER,
-			allowNull: false,
-			validate: {
-				notNull: true,
-				min: 0,
-			},
-			defaultValue: 0,
+		},
+		expired_in: {
+			type: Sequelize.DATE,
+		},
+		condition: {
+			type: Sequelize.BIGINT,
+		},
+		percent: {
+			type: Sequelize.FLOAT,
 		},
 		description: Sequelize.TEXT,
 	},

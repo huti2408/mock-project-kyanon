@@ -36,6 +36,7 @@
     "moleculer-db": "^0.8.17",
     "moleculer-db-adapter-sequelize": "^0.2.13",
     "moleculer-web": "^0.10.2",
+    "moment": "^2.29.3",
     "mysql2": "^2.3.3",
     "nats": "^2.2.0",
     "redlock": "^4.2.0",
