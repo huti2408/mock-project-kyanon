@@ -99,7 +99,7 @@ module.exports = {
 				customer: { type: "string" },
 			},
 			async handler(ctx) {
-				const { customer } = ctx.params;
+				const { customer, voucher } = ctx.params;
 				//console.log(customer);
 				await this.adapter.insert(ctx.params);
 				let newOrder = await this.adapter.findOne({
@@ -117,7 +117,31 @@ module.exports = {
 						$set: newOrder.dataValues,
 					});
 				}
-				return Create(ctx, null, newOrder);
+				const order = newOrder.dataValues.id;
+				await console.log(newOrder.dataValues);
+				//check voucher and order
+				const data = await ctx.call("vouchers.checkValid", {
+					ctx,
+					order,
+					voucher,
+				});
+				if (data.valid === true) {
+					new Promise((resolve) => {
+						resolve(
+							(newOrder["total"] =
+								newOrder.total - data.discount),
+							(newOrder["voucher"] = voucher)
+						);
+					}).then(async () => {
+						await this.adapter.updateById(newOrder.dataValues.id, {
+							$set: newOrder.dataValues,
+						});
+					});
+					return Create(ctx, null, newOrder);
+				} else {
+					ctx.meta.$statusCode = StatusCodes.BAD_REQUEST;
+					return { message: data.msg };
+				}
 			},
 		},
 		update: {

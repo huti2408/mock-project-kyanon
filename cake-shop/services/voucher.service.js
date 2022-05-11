@@ -73,17 +73,13 @@ module.exports = {
 					msg: "not found order",
 				};
 			}
-			if (order_new.dataValues.voucher) {
-				return {
-					valid: false,
-					msg: "This order already used voucher for discount",
-				};
-			}
+			//check total of order and condition of voucher
 			if (
 				order_new.dataValues.total >= voucher_new.dataValues.condition
 			) {
 				const discount =
 					order_new.dataValues.total * voucher_new.dataValues.percent;
+				//update new total after discount
 				if (discount > voucher_new.dataValues.value) {
 					voucher_new.dataValues.quantity_remaining -= 1;
 					await this.adapter.updateById(id, {
