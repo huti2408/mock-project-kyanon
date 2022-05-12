@@ -34,7 +34,14 @@ module.exports = {
 					"POST /sign-in": "auth.signIn",
 				},
 			},
-
+			{
+				path: "/api/admin/orders",
+				name: "order",
+				aliases: {
+					"PUT /:id": "orders.update",
+					"DELETE /:id": "orders.delete",
+				},
+			},
 			{
 				name: "payment",
 				path: "/api/admin/payment",

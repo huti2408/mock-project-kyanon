@@ -120,6 +120,9 @@ module.exports = {
 				const { details } = ctx.params;
 				const newEnity = ctx.params;
 				await this.adapter.insert({ newEnity, customerId });
+				const { customer, voucherId } = ctx.params;
+				//console.log(customer);
+				await this.adapter.insert(ctx.params);
 				let newOrder = await this.adapter.findOne({
 					where: { customerId },
 				});
@@ -141,7 +144,31 @@ module.exports = {
 						$set: newOrder.dataValues,
 					});
 				}
-				return Create(ctx, null, newOrder);
+				const order = newOrder.dataValues.id;
+				await console.log(newOrder.dataValues);
+				//check voucher and order
+				const data = await ctx.call("vouchers.checkValid", {
+					ctx,
+					order,
+					voucherId,
+				});
+				if (data.valid === true) {
+					new Promise((resolve) => {
+						resolve(
+							(newOrder["total"] =
+								newOrder.total - data.discount),
+							(newOrder["voucher"] = voucherId)
+						);
+					}).then(async () => {
+						await this.adapter.updateById(newOrder.dataValues.id, {
+							$set: newOrder.dataValues,
+						});
+					});
+					return Create(ctx, null, newOrder);
+				} else {
+					ctx.meta.$statusCode = 400;
+					return { message: data.msg };
+				}
 			},
 		},
 		update: {
@@ -171,7 +198,11 @@ module.exports = {
 				// 	);
 				// });
 				const field = Object.keys(ctx.params);
-				if (_.includes(field, "status")) {
+				console.log(field);
+				if (
+					_.includes(field, "status") ||
+					_.includes(field, "payment_status")
+				) {
 					await this.adapter.updateById(id, {
 						$set: ctx.params,
 					});
