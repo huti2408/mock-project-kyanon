@@ -79,7 +79,7 @@ module.exports = {
 			) {
 				const discount =
 					order_new.dataValues.total * voucher_new.dataValues.percent;
-				//update new total after discount
+				//update new quantity after discount
 				if (discount > voucher_new.dataValues.value) {
 					voucher_new.dataValues.quantity_remaining -= 1;
 					await this.adapter.updateById(id, {
