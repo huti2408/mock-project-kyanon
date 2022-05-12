@@ -42,7 +42,7 @@ module.exports = {
 				authorization: true,
 				aliases: {
 					"GET /profile": "users.showProfile",
-					// "POST /sign-up": "users.signUp",
+					"POST /sign-up": "users.signUp",
 				},
 			},
 			{
@@ -68,9 +68,6 @@ module.exports = {
 					"GET /all": "orders.list",
 					"POST /": "orders.create",
 					"GET /:id": "orders.detail",
-					"PUT /:id": "orders.update",
-					"DELETE /:id": "orders.delete",
-					"PUT voucher/": "orders.addVoucher",
 				},
 			},
 			{

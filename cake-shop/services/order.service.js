@@ -171,7 +171,11 @@ module.exports = {
 				// 	);
 				// });
 				const field = Object.keys(ctx.params);
-				if (_.includes(field, "status")) {
+				console.log(field);
+				if (
+					_.includes(field, "status") ||
+					_.includes(field, "payment_status")
+				) {
 					await this.adapter.updateById(id, {
 						$set: ctx.params,
 					});
