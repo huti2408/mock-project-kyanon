@@ -46,7 +46,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "deliveryInfor",
+				name: "deliveryInfors",
 				path: "/api/deli-infors/",
 				authentication: true,
 				authorization: true,
@@ -59,31 +59,19 @@ module.exports = {
 				},
 			},
 			{
-				name: "order",
+				name: "orders",
 				path: "/api/orders/",
 				authentication: true,
-				// authorization: true,
+				authorization: true,
 				aliases: {
-					"GET /:userId": "orders.getAllOrderOfUser",
+					"GET user/:userId": "orders.getAllOrderOfUser",
 					"GET /": "orders.list",
 					"POST /": "orders.create",
 					"GET /:id": "orders.detail",
 				},
 			},
 			{
-				name: "voucher",
-				path: "/api/vouchers/",
-				// authentication: true,
-				// authorization: true,
-				aliases: {
-					"POST /": "vouchers.create",
-					"GET /:id": "vouchers.get",
-					"PUT /:id": "vouchers.update",
-					"DELETE /:id": "vouchers.delete",
-				},
-			},
-			{
-				name: "order_detail",
+				name: "order_details",
 				path: "/api/order_details/",
 				// authentication: true,
 				// authorization: true,
@@ -96,10 +84,10 @@ module.exports = {
 				},
 			},
 			{
-				name: "product",
+				name: "products",
 				path: "/api/products/",
 				authentication: true,
-				// authorization: true,
+				authorization: true,
 				aliases: {
 					"GET /": "products.list",
 					"POST /": "products.create",
@@ -110,7 +98,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "category",
+				name: "categories",
 				path: "/api/categories/",
 				authentication: true,
 				authorization: true,
@@ -123,7 +111,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "voucher",
+				name: "vouchers",
 				path: "/api/vouchers/",
 				// authentication: true,
 				// authorization: true,
@@ -136,7 +124,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "comment",
+				name: "comments",
 				path: "/api/comments/",
 				authentication: true,
 				// authorization: true,
@@ -268,7 +256,9 @@ module.exports = {
 				method,
 				route: { name },
 			} = req.$alias;
+			//console.log(req.$alias);
 			const { roleId, permissions } = ctx.meta.user;
+			console.log(ctx.meta.user);
 			if (!roleId && Object.keys(permissions).length === 0) {
 				throw Unauthorized();
 			}

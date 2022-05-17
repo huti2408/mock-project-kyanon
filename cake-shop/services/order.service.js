@@ -90,6 +90,7 @@ module.exports = {
 				userId: "string",
 			},
 			async handler(ctx) {
+				console.log(ctx.params);
 				const { userId } = ctx.params;
 				const listOrdersByUser = await this.getAllOrderOfUser(userId);
 				if (!listOrdersByUser || listOrdersByUser.length == 0) {
@@ -120,9 +121,8 @@ module.exports = {
 				const { details } = ctx.params;
 				const newEnity = ctx.params;
 				await this.adapter.insert({ newEnity, customerId });
-				const { customer, voucherId } = ctx.params;
+				const { customer, voucher } = ctx.params;
 				//console.log(customer);
-				await this.adapter.insert(ctx.params);
 				let newOrder = await this.adapter.findOne({
 					where: { customerId },
 				});
@@ -145,19 +145,19 @@ module.exports = {
 					});
 				}
 				const order = newOrder.dataValues.id;
-				await console.log(newOrder.dataValues);
 				//check voucher and order
 				const data = await ctx.call("vouchers.checkValid", {
 					ctx,
 					order,
-					voucherId,
+					voucher,
 				});
+				console.log("data:", data);
 				if (data.valid === true) {
 					new Promise((resolve) => {
 						resolve(
 							(newOrder["total"] =
 								newOrder.total - data.discount),
-							(newOrder["voucher"] = voucherId)
+							(newOrder["voucherId"] = data.id)
 						);
 					}).then(async () => {
 						await this.adapter.updateById(newOrder.dataValues.id, {

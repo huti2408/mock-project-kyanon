@@ -2,6 +2,11 @@ const Sequelize = require("sequelize");
 const RolePermissionModel = {
 	name: "rolePermission",
 	define: {
+		id: {
+			type: Sequelize.INTEGER,
+			primaryKey: true,
+			unique: true,
+		},
 		role_id: {
 			type: Sequelize.INTEGER,
 			references: {

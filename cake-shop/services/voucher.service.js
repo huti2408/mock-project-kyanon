@@ -44,10 +44,10 @@ module.exports = {
 		async checkValid(ctx, id_order, id_voucher) {
 			const { order, voucher } = ctx.params;
 			console.log(order, voucher);
-			const id = voucher;
+			const name = voucher;
 			let voucher_new = await this.adapter.findOne({
 				where: {
-					id,
+					name,
 				},
 				fields: [
 					"value",
@@ -82,21 +82,23 @@ module.exports = {
 				//update new quantity after discount
 				if (discount > voucher_new.dataValues.value) {
 					voucher_new.dataValues.quantity_remaining -= 1;
-					await this.adapter.updateById(id, {
+					await this.adapter.updateById(voucher_new.dataValues.id, {
 						$set: voucher_new.dataValues,
 					});
 					return {
 						valid: true,
 						discount: voucher_new.dataValues.value,
+						id: voucher_new.dataValues.id,
 					};
 				} else {
 					voucher_new.dataValues.quantity_remaining -= 1;
-					await this.adapter.updateById(id, {
+					await this.adapter.updateById(voucher_new.dataValues.id, {
 						$set: voucher_new.dataValues,
 					});
 					return {
 						valid: true,
 						discount: discount,
+						id: voucher_new.dataValues.id,
 					};
 				}
 			} else {

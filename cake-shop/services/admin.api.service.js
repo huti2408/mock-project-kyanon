@@ -67,6 +67,30 @@ module.exports = {
 					"DELETE /:id": "rolePermissions.remove",
 				},
 			},
+			{
+				name: "role",
+				path: "/api/admin/role",
+				authentication: true,
+				authorization: true,
+				aliases: {
+					// admin-handler
+					"GET /": "roles.list",
+					"POST /": "roles.create",
+					"DELETE /:id": "roles.remove",
+				},
+			},
+			{
+				name: "permission",
+				path: "/api/admin/permission",
+				authentication: true,
+				authorization: true,
+				aliases: {
+					// admin-handler
+					"GET /": "permissions.list",
+					"POST /": "permissions.create",
+					"DELETE /:id": "permissions.remove",
+				},
+			},
 		],
 		// Calling options. More info: https://moleculer.services/docs/0.14/moleculer-web.html#Calling-options
 		callingOptions: {},
