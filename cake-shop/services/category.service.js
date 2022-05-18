@@ -22,6 +22,7 @@ module.exports = {
 			rest: "GET /",
 			cache: true,
 			async handler(ctx) {
+				console.log("call category service");
 				const categories = await this.adapter.find();
 				if (categories.length === 0) {
 					return Response(ctx, {
@@ -29,6 +30,7 @@ module.exports = {
 						categories,
 					});
 				}
+				console.log(categories);
 				return Get(ctx, categories);
 			},
 		},
@@ -56,6 +58,7 @@ module.exports = {
 				description: { type: "string" },
 			},
 			async handler(ctx) {
+				//this.broker.cacher.clean("MOL-categories.**");
 				const newCategory = ctx.params;
 				await this.adapter.insert(newCategory);
 				return Create(ctx, null, newCategory);

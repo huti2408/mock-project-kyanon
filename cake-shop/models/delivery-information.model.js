@@ -12,6 +12,10 @@ const DeliveryInforModel = {
 			type: UUID,
 			allowNull: false,
 			defaultValue: UUIDV4,
+			references: {
+				model: "users",
+				key: "id",
+			},
 		},
 		receiverName: {
 			type: STRING,

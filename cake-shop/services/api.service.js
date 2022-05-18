@@ -36,7 +36,7 @@ module.exports = {
 				},
 			},
 			{
-				path: "/api/users/",
+				path: "/api/user",
 				name: "users-handler",
 				authentication: true,
 				authorization: true,
@@ -46,7 +46,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "deliveryInfors",
+				name: "deliveryInfor",
 				path: "/api/deli-infors/",
 				authentication: true,
 				authorization: true,
@@ -59,7 +59,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "orders",
+				name: "order",
 				path: "/api/orders/",
 				authentication: true,
 				authorization: true,
@@ -71,7 +71,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "order_details",
+				name: "order_detail",
 				path: "/api/order_details/",
 				// authentication: true,
 				// authorization: true,
@@ -84,7 +84,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "products",
+				name: "product",
 				path: "/api/products/",
 				authentication: true,
 				authorization: true,
@@ -98,7 +98,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "categories",
+				name: "category",
 				path: "/api/categories/",
 				authentication: true,
 				authorization: true,
@@ -111,10 +111,10 @@ module.exports = {
 				},
 			},
 			{
-				name: "vouchers",
+				name: "voucher",
 				path: "/api/vouchers/",
-				// authentication: true,
-				// authorization: true,
+				authentication: true,
+				authorization: true,
 				aliases: {
 					"GET /": "vouchers.list",
 					"POST /": "vouchers.create",
@@ -124,7 +124,7 @@ module.exports = {
 				},
 			},
 			{
-				name: "comments",
+				name: "comment",
 				path: "/api/comments/",
 				authentication: true,
 				// authorization: true,
